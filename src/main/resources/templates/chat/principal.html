@@ -1,0 +1,263 @@
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}"
+  th:with="currentPage='mensagens'"
+>
+  <div layout:fragment="content">
+    <main
+      class="chat-area d-flex flex-column"
+      style="height: calc(100vh - 200px)"
+    >
+      <!-- Área de Mensagens Dinâmica -->
+      <div
+        id="messages-area"
+        class="vibrant-scroll border rounded bg-white p-3 mb-3 flex-grow-1"
+        style="overflow-y: auto; background-color: #f8f9fa !important"
+      >
+        <div th:fragment="area-mensagens" id="chat-content">
+          <!-- Estado: Visitante -->
+          <div
+            th:unless="${estaLogado}"
+            class="d-flex flex-column align-items-center justify-content-center h-100 text-muted text-center"
+          >
+            <i class="ph ph-chat-centered-dots fs-1 mb-3"></i>
+            <p>
+              Você está visualizando o portal como visitante.<br />
+              Para interagir,
+              <a th:href="@{/login}" class="fw-bold text-primary">faça login</a
+              >.
+            </p>
+          </div>
+
+          <!-- Estado: Logado mas sem chat selecionado -->
+          <div
+            th:if="${estaLogado and tipoConversa == null}"
+            class="d-flex flex-column align-items-center justify-content-center h-100 text-muted"
+          >
+            <i class="ph ph-chats fs-1 mb-2"></i>
+            <p>Selecione um grupo ou servidor para iniciar uma conversa.</p>
+          </div>
+
+          <!-- Conteúdo do Chat Ativo -->
+          <div th:if="${tipoConversa != null}" class="d-flex flex-column gap-3">
+            <div class="text-center mb-3">
+              <span
+                class="badge bg-light text-muted border py-2 px-3 rounded-pill shadow-sm"
+              >
+                <i
+                  th:class="${tipoConversa == 'GRUPO' ? 'ph ph-users' : 'ph ph-user'}"
+                ></i>
+                <h5
+                  class="mb-0"
+                  th:text="${tipoConversa == 'GRUPO' ? conversaAtiva.nome : (servidorDestino != null ? servidorDestino.nomeCompleto : destinatario.username)}"
+                >
+                  Nome da Conversa
+                </h5>
+              </span>
+            </div>
+
+            <div
+              th:each="m : ${mensagens}"
+              th:class="${m.remetente.username == #authentication.name} ? 'd-flex flex-column align-items-end' : 'd-flex flex-column align-items-start'"
+            >
+              <div
+                th:class="${m.remetente.username == #authentication.name} ? 'bg-primary text-white p-2 rounded-3 shadow-sm' : 'bg-white border p-2 rounded-3 shadow-sm'"
+                style="max-width: 75%; position: relative"
+              >
+                <small
+                  th:if="${m.remetente.username != #authentication.name}"
+                  class="d-block fw-bold mb-1 text-primary"
+                  style="font-size: 0.7rem"
+                  th:text="${m.remetente.username}"
+                ></small>
+                <span th:text="${m.conteudo}" class="d-block"></span>
+                <div
+                  class="text-end"
+                  style="font-size: 0.65rem; opacity: 0.8; margin-top: 4px"
+                >
+                  <span
+                    th:text="${#temporals.format(m.dataEnvio, 'HH:mm')}"
+                  ></span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              th:if="${#lists.isEmpty(mensagens)}"
+              class="text-center text-muted my-5"
+            >
+              <p>Nenhuma mensagem ainda. Comece a conversa!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer de envio -->
+      <div class="chat-footer" th:if="${estaLogado}">
+        <form
+          id="messageForm"
+          class="d-flex gap-2"
+          onsubmit="
+            event.preventDefault();
+            enviarMensagem();
+          "
+        >
+          <input type="hidden" id="ativoId" value="" />
+          <input type="hidden" id="tipoAtivo" value="" />
+          <input
+            type="text"
+            id="messageInput"
+            class="form-control shadow-sm"
+            placeholder="Selecione uma conversa..."
+            autocomplete="off"
+            disabled
+          />
+          <button
+            type="button"
+            id="btnEnviar"
+            class="btn btn-primary shadow-sm"
+            disabled
+          >
+            <i class="ph ph-paper-plane-right"></i>
+          </button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <div layout:fragment="aside-extra">
+    <div class="p-2">
+      <h6 class="text-uppercase text-muted small fw-bold mb-3">Grupos</h6>
+      <div class="list-group list-group-flush mb-4">
+        <button
+          th:each="grupo : ${grupos}"
+          class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center gap-2 btn-grupo"
+          th:data-id="${grupo.id}"
+          onclick="selecionarChat('grupo', this.getAttribute('data-id'), this)"
+        >
+          <div
+            th:class="'group-avatar ' + (${grupo.id % 4 == 0} ? 'bg-group-1' : (${grupo.id % 4 == 1} ? 'bg-group-2' : (${grupo.id % 4 == 2} ? 'bg-group-3' : 'bg-group-4')))"
+            th:text="${grupo.nome != null && !grupo.nome.empty ? #strings.substring(grupo.nome, 0, 1) : 'G'}"
+          >
+            G
+          </div>
+          <div class="d-flex flex-column text-start text-truncate">
+            <span
+              class="small fw-semibold text-dark text-truncate"
+              th:text="${grupo.nome}"
+            ></span>
+            <span class="text-muted extra-small" style="font-size: 0.7rem">
+              <i class="ph ph-users me-1"></i>
+              <span
+                th:text="${grupo.quantidadeMembros + (grupo.quantidadeMembros == 1 ? ' membro' : ' membros')}"
+              ></span>
+            </span>
+          </div>
+        </button>
+      </div>
+
+      <h6 class="text-uppercase text-muted small fw-bold mb-3">Servidores</h6>
+      <div class="list-group list-group-flush">
+        <button
+          th:each="servidor : ${servidores}"
+          th:if="${servidor.usuario != null}"
+          class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center btn-servidor"
+          th:data-id="${servidor.usuario.id}"
+          onclick="
+            selecionarChat('privado', this.getAttribute('data-id'), this)
+          "
+        >
+          <img
+            th:src="${servidor.usuario.avatarUrl != null} ? @{/img/{url}(url=${servidor.usuario.avatarUrl})} : @{/img/avatar_masculino.png}"
+            class="rounded-circle border me-2"
+            style="width: 30px; height: 30px; object-fit: cover"
+          />
+
+          <div class="text-truncate text-start">
+            <div
+              class="fw-bold small text-dark"
+              th:text="${servidor.nomeCompleto}"
+            ></div>
+            <div
+              class="text-muted extra-small"
+              style="font-size: 0.7rem"
+              th:text="${servidor.usuario.username}"
+            ></div>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <!-- SCRIPTS MANTIDOS -->
+    <script th:inline="javascript">
+      const estaLogado = /*[[${estaLogado}]]*/ false;
+
+      function selecionarChat(tipo, id, elemento) {
+        if (!estaLogado) return alert("Faça login para interagir.");
+        document
+          .querySelectorAll(".list-group-item")
+          .forEach((el) =>
+            el.classList.remove("active", "bg-primary", "text-white"),
+          );
+        elemento.classList.add("bg-primary", "text-white");
+        document.getElementById("ativoId").value = id;
+        document.getElementById("tipoAtivo").value = tipo;
+        const input = document.getElementById("messageInput");
+        input.disabled = false;
+        input.placeholder =
+          "Mensagem para " +
+          (tipo === "grupo" ? "o grupo..." : "o servidor...");
+        document.getElementById("btnEnviar").disabled = false;
+        input.focus();
+        carregarHistorico(tipo, id);
+      }
+
+      function carregarHistorico(tipo, id) {
+        fetch(`/chat/historico/${tipo}/${id}`)
+          .then((response) => {
+            // Se a resposta não for OK (200), joga um erro para o bloco catch
+            if (!response.ok)
+              throw new Error("Erro na requisição: " + response.status);
+            return response.text();
+          })
+          .then((html) => {
+            const area = document.getElementById("messages-area");
+            area.innerHTML = html;
+            area.scrollTo({ top: area.scrollHeight, behavior: "smooth" });
+          })
+          .catch((error) => {
+            console.error("Erro ao carregar histórico:", error);
+          });
+      }
+
+      function enviarMensagem() {
+        const input = document.getElementById("messageInput");
+        const conteudo = input.value;
+        const idDestino = document.getElementById("ativoId").value;
+        const tipo = document.getElementById("tipoAtivo").value;
+        if (!conteudo.trim()) return;
+
+        const formData = new FormData();
+        formData.append("conteudo", conteudo);
+        if (tipo === "grupo") formData.append("grupoId", idDestino);
+        else formData.append("destinatarioId", idDestino);
+
+        fetch("/chat/enviar", {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-CSRF-TOKEN":
+              document.querySelector('meta[name="_csrf"]')?.content ||
+              document.querySelector('input[name="_csrf"]')?.value,
+          },
+        }).then((response) => {
+          if (response.ok) {
+            input.value = "";
+            carregarHistorico(tipo, idDestino);
+          }
+        });
+      }
+    </script>
+  </div>
+</html>

@@ -1,0 +1,91 @@
+<aside th:fragment="sidebar" class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <img
+      th:src="@{/img/icone_brasao.png}"
+      class="brasao-icone-top"
+      alt="Ícone Brasão"
+    />
+    <span class="fw-bold ms-2 organ-title">APS Irecê</span>
+  </div>
+
+  <nav class="sidebar-menu d-flex flex-column">
+    <div class="menu-items">
+      <div class="menu-label">Menu</div>
+      <a
+        href="/"
+        class="nav-link"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="Página Inicial"
+      >
+        <i class="ph-light ph-house-line"></i>
+        <span class="item-title">PÁGINA INICIAL</span>
+      </a>
+      <a
+        href="/digital"
+        class="nav-link"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="INSS Digital"
+      >
+        <i class="ph-light ph-cloud-arrow-down"></i>
+        <span class="item-title">INSS DIGITAL</span>
+      </a>
+      <a
+        href="/equipe"
+        class="nav-link"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="Equipe"
+      >
+        <i class="ph-light ph-users"></i>
+        <span class="item-title">EQUIPE</span>
+      </a>
+      <a
+        href="/arquivos"
+        class="nav-link"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="ARQUIVOS"
+      >
+        <i class="ph-light ph-folder-open"></i>
+        <span class="item-title">ARQUIVOS</span>
+      </a>
+
+      <a
+  th:href="@{/chat/mensagens}"
+  class="nav-link"
+  th:classappend="${currentPage == 'mensagens' ? 'active' : ''}"
+  data-bs-toggle="tooltip"
+  data-bs-placement="right"
+  title="Mensagens"
+>
+  <i class="ph-light ph-chat-centered-text"></i>
+  <span class="item-title">MENSAGENS</span>
+</a>
+
+        <!-- Badge de Notificações Não Lidas -->
+        <span
+          th:if="${totalNaoLidas > 0}"
+          class="badge rounded-pill bg-danger ms-auto"
+          th:text="${totalNaoLidas}"
+        >
+          0
+        </span>
+      </a>
+    </div>
+
+    <div class="menu-footer mt-auto pb-3">
+      <a
+        href="/opcoes"
+        class="nav-link"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="Opções"
+      >
+        <i class="ph-light ph-gear"></i>
+        <span class="item-title">OPÇÕES</span>
+      </a>
+    </div>
+  </nav>
+</aside>

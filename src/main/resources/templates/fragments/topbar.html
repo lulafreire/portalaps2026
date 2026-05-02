@@ -1,0 +1,77 @@
+<header th:fragment="topbar" class="top-bar mb-4">
+  <div class="d-flex align-items-center">
+    <button id="sidebarToggle" class="btn text-dark p-0 me-3 shadow-none">
+      <i class="ph-light ph-list" style="font-size: 1.5rem"></i>
+    </button>
+
+    <div class="search-wrapper d-flex align-items-center">
+      <i class="ph-light ph-magnifying-glass me-2"></i>
+      <input
+        type="text"
+        class="search-bar"
+        placeholder="Pesquisar links ou documentos"
+      />
+    </div>
+  </div>
+
+  <div class="d-flex align-items-center gap-3">
+    <span class="small text-muted">
+      Bem-vindo(a),
+      <strong
+        th:text="${estaLogado == true && usuario != null ? usuario.username : 'Servidor'}"
+        >Servidor</strong
+      >
+    </span>
+
+    <div class="dropdown user-profile">
+      <!-- Substituição do ícone pelo Avatar dinâmico -->
+      <div data-bs-toggle="dropdown" style="cursor: pointer">
+        <img
+          th:if="${estaLogado && usuario != null}"
+          th:src="${usuario.avatarUrl != null} ? @{/img/{url}(url=${usuario.avatarUrl})} : @{/img/avatar_masculino.png}"
+          alt="Avatar"
+          class="rounded-circle border"
+          style="width: 40px; height: 40px; object-fit: cover"
+        />
+
+        <!-- Ícone padrão caso não esteja logado -->
+        <i
+          th:unless="${estaLogado}"
+          class="ph-light ph-user-circle"
+          style="font-size: 2.5rem; color: #83878f"
+        ></i>
+      </div>
+
+      <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+        <div sec:authorize="isAuthenticated()">
+          <li>
+            <a class="dropdown-item" href="#">
+              <i class="ph-light ph-star me-2"></i>Favoritos
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item" th:href="@{/perfil}">
+              <i class="ph-light ph-user me-2"></i>Perfil
+            </a>
+          </li>
+          <li><hr class="dropdown-divider" /></li>
+          <li>
+            <form th:action="@{/logout}" method="post" id="logoutForm">
+              <!-- O Spring Boot insere o token CSRF automaticamente aqui se você usar th:action -->
+              <button type="submit" class="dropdown-item text-danger">
+                <i class="ph-light ph-sign-out me-2"></i>Sair
+              </button>
+            </form>
+          </li>
+        </div>
+        <div sec:authorize="isAnonymous()">
+          <li>
+            <a class="dropdown-item fw-bold" th:href="@{/login}">
+              <i class="ph-light ph-sign-in me-2"></i>Fazer Login
+            </a>
+          </li>
+        </div>
+      </ul>
+    </div>
+  </div>
+</header>

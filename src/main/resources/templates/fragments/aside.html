@@ -1,0 +1,57 @@
+<div th:fragment="aside-extra">
+  <div th:if="${currentPage == 'home'}">
+    <h6 class="text-muted fw-bold mb-4 small">
+      <i class="ph-light ph-lightning" style="color: darkorange"></i> MAIS
+      ACESSADOS
+    </h6>
+    <ul class="ranked-list" th:if="${maisVisitados != null}">
+      <li th:each="fav, iter : ${maisVisitados}" class="ranked-item">
+        <span class="rank-number" th:text="${iter.count}">1</span>
+        <a th:href="${fav.url}" class="rank-title" th:text="${fav.titulo}"
+          >Link</a
+        >
+      </li>
+    </ul>
+    <p th:if="${maisVisitados == null}" class="small text-muted">
+      Nenhum link acessado.
+    </p>
+  </div>
+  <div th:fragment="aside-extra">
+    <div th:if="${currentPage == 'digital'}">
+      <h6 class="text-muted fw-bold mb-4 small">
+        <i class="ph ph-calendar-blank" style="color: #15273e"></i> BUSCAR POR
+        DATA
+      </h6>
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-3">
+          <form th:action="@{/digital}" method="get">
+            <div class="mb-3">
+              <label class="form-label small text-muted fw-bold"
+                >SELECIONE O DIA</label
+              >
+              <input
+                type="date"
+                name="dataFiltro"
+                class="form-control"
+                th:value="${dataAtual}"
+              />
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-sm">
+              <i class="ph ph-magnifying-glass"></i> Filtrar Arquivos
+            </button>
+          </form>
+        </div>
+      </div>
+      <div class="mt-4 p-2 bg-light rounded border">
+        <small class="text-muted">
+          <i class="ph ph-info"></i> Exibindo registros de:
+          <strong
+            th:text="${#temporals.format(dataAtual, 'dd/MM/yyyy')}"
+          ></strong>
+        </small>
+      </div>
+    </div>
+
+    <div th:if="${currentPage == 'home'}"></div>
+  </div>
+</div>

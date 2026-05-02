@@ -1,0 +1,78 @@
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  layout:decorate="~{layout/main}"
+  th:with="currentPage='digital'"
+>
+  <div layout:fragment="content">
+    <div class="px-2">
+      <h4 class="mb-4 fw-bold">INSS Digital</h4>
+
+      <ul
+        class="nav nav-pills mb-4 border-bottom pb-2 gap-2"
+        id="digitalTab"
+        role="tablist"
+      >
+        <li class="nav-item">
+          <button
+            class="nav-link active px-4"
+            data-bs-toggle="pill"
+            data-bs-target="#tab-arquivos"
+            type="button"
+          >
+            <i class="ph ph-file-text me-2"></i>ARQUIVOS ENVIADOS
+          </button>
+        </li>
+        <li class="nav-item">
+          <button
+            class="nav-link px-4"
+            data-bs-toggle="pill"
+            data-bs-target="#tab-upload"
+            type="button"
+          >
+            <i class="ph ph-cloud-arrow-up me-2"></i>ANEXAR NOVO
+          </button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="digitalTabContent">
+        <div
+          class="tab-pane fade show active"
+          id="tab-arquivos"
+          role="tabpanel"
+        >
+          <div class="table-responsive bg-white rounded shadow-sm border">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Nome do Arquivo</th>
+                  <th>Usuário</th>
+                  <th>Hora</th>
+                  <th class="text-end">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="arquivo : ${arquivos}">
+                  <td th:text="${arquivo.nome}"></td>
+                  <td th:text="${arquivo.usuario}"></td>
+                  <td
+                    th:text="${#temporals.format(arquivo.dataEnvio, 'HH:mm')}"
+                  ></td>
+                  <td class="text-end">
+                    <a
+                      th:href="${arquivo.url}"
+                      class="btn btn-sm btn-outline-primary"
+                      >Ver</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tab-upload" role="tabpanel"></div>
+      </div>
+    </div>
+  </div>
+</html>

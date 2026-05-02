@@ -1,0 +1,352 @@
+/* Variáveis de Identidade Visual */
+:root {
+  --inss-dark: #15273e;
+  --inss-light-bg: #f8f8f8;
+  --inss-gray: #cccccc;
+  --inss-text: #333333;
+  --inss-accent: #2a3d55;
+  --inss-orange: #ebad39;
+  --font-main: "Open Sans", "Segoe UI", Tahoma, sans-serif;
+}
+
+/* Ajuste global para ícones Phosphor */
+i.ph-light {
+  font-size: 1.25rem;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* Estrutura Geral */
+body {
+  background-color: white;
+  color: var(--inss-text);
+  display: flex; /* Habilita o alinhamento horizontal  */
+  flex-direction: row; /* Garante que fiquem lado a lado  */
+  width: 100vw; /* Ocupa a largura total da tela */
+  height: 100vh;
+  margin: 0; /* Remove margens padrão que podem empurrar o conteúdo */
+  overflow: hidden; /* Evita barras de rolagem duplas no corpo da página  */
+  font-family: var(--font-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.content-body {
+  padding: 0 20px; /* Espaçamento interno lateral */
+  width: 100%; /* Garante que não ultrapasse o wrapper pai */
+  box-sizing: border-box; /* Inclui o padding no cálculo da largura */
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: var(--font-main);
+}
+
+.fw-bold {
+  font-weight: 700;
+}
+
+/* Barra Lateral (Sidebar) */
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background-color: var(--inss-dark);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width 0.3s ease;
+  z-index: 1000;
+}
+
+/* Estado Retraído */
+.sidebar.collapsed {
+  width: 80px;
+}
+
+/* Esconder textos e labels quando retraído */
+.sidebar.collapsed .menu-label,
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .fw-bold {
+  display: none;
+}
+
+.sidebar-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--inss-accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 70px;
+}
+
+/* Novo estilo do ícone do Brasão */
+.brasao-icone-top {
+  width: 32px; /* Tamanho pequeno, como um ícone */
+  height: auto; /* Mantém a proporção */
+  flex-shrink: 0;
+
+  /* Transparência aplicada (opacidade de 50%) */
+  /* Isso faz com que as cores fiquem menos vivas e mais integradas ao fundo escuro */
+  opacity: 0.5;
+  transition: opacity 0.3s ease; /* Transição para o efeito de hover */
+}
+
+/* Efeito ao passar o mouse: o brasão fica um pouco mais nítido */
+.sidebar-header:hover .brasao-icone-top {
+  opacity: 0.8;
+}
+
+/* Ajuste fino para o título ao lado do brasão */
+.organ-title {
+  white-space: nowrap;
+  font-size: 1.1rem; /* Tamanho de fonte sutilmente maior */
+  color: #83878f; /* Cor suave para o texto (combina com o menu-label) */
+}
+
+.item-title {
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.7px;
+}
+
+/* Ajuste para Sidebar Retraída */
+.sidebar.collapsed .organ-title {
+  display: none; /* Esconde o texto ao retrair */
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center; /* Centraliza o ícone */
+  padding: 15px 0;
+}
+
+/* Menu Principal */
+.sidebar-menu {
+  padding: 20px;
+  flex-grow: 1; /* Ocupa o espaço disponível */
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+.menu-label {
+  font-size: 0.75rem;
+  color: #83878f;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+}
+
+.sidebar .nav-link {
+  color: white;
+  padding: 12px 10px;
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar .nav-link i {
+  font-size: 1.4rem;
+  color: #83878f;
+  min-width: 30px;
+}
+
+.sidebar .nav-link:hover {
+  color: var(--inss-gray);
+  background: rgba(255, 255, 255, 0.05);
+  padding-left: 15px;
+}
+
+.sidebar .nav-link:hover i {
+  color: white;
+}
+
+/* Posicionamento do item OPÇÕES no bottom */
+.menu-footer {
+  margin-top: auto; /* Empurra o conteúdo para o fim do container flex */
+  padding-top: 20px;
+}
+
+/* Ajustes para Sidebar Retraída */
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: 15px 0;
+}
+
+.sidebar.collapsed .nav-link i {
+  margin-right: 0;
+  font-size: 1.6rem;
+}
+
+/* Personalização dos Tooltips do Bootstrap */
+.tooltip-inner {
+  background-color: var(--inss-accent) !important; /* Cor azulada do tema */
+  font-family: var(--font-main);
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin-left: 20px;
+}
+
+.bs-tooltip-end .tooltip-arrow::before {
+  border-right-color: var(--inss-accent) !important;
+}
+
+/* Área de Conteúdo Principal */
+.main-wrapper {
+  flex-grow: 1; /* Força este container a ocupar 100% do espaço restante [cite: 48] */
+  display: flex;
+  flex-direction: row;
+  overflow-y: auto; /* Permite rolagem apenas nesta área [cite: 48] */
+  background-color: var(
+    --inss-light-bg
+  ); /* Garante o fundo cinza claro [cite: 18] */
+}
+
+/* Top Bar */
+.top-bar {
+  height: 70px;
+  background: white;
+  border-bottom: 1px solid #eeeeee;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.search-bar {
+  background: #e9e9e9;
+  border-radius: 8px;
+  border: none;
+  padding: 8px 15px;
+  width: 400px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+/* Navegação por Abas (Nav-Pills) */
+.nav-pills {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.nav-pills .nav-link {
+  color: #555;
+  background: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  padding: 10px 25px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--inss-dark) !important;
+  color: white !important;
+}
+
+/* Botões de Link (Cards) */
+.btn-outline-secondary {
+  border-color: #eee;
+  color: var(--inss-text);
+  transition: all 0.2s ease-in-out;
+  background-color: #fff;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #f8f9fa;
+  border-color: var(--inss-dark);
+  color: var(--inss-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Ranking (Lateral Direita) */
+.ranked-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rank-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #bbb;
+  width: 40px;
+}
+
+.rank-title {
+  font-weight: 500;
+  color: var(--inss-text);
+  text-decoration: none;
+}
+
+/* --- Avatares Circulares para Grupos --- */
+.group-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 0.9rem;
+  flex-shrink: 0; /* Impede que o círculo amasse em nomes longos */
+  text-transform: uppercase;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.btn-grupo:hover .group-avatar {
+  transform: scale(1.1); /* Efeito de destaque ao passar o mouse */
+}
+
+/* Cores vibrantes para identificação rápida */
+.bg-group-1 {
+  background-color: #6c5ce7 !important;
+} /* Roxo */
+.bg-group-2 {
+  background-color: #00cec9 !important;
+} /* Turquesa */
+.bg-group-3 {
+  background-color: #ff7675 !important;
+} /* Rosa */
+.bg-group-4 {
+  background-color: #fab1a0 !important;
+} /* Salmão/Laranja */
+.bg-group-5 {
+  background-color: #55efc4 !important;
+} /* Verde Água */
+
+.extra-small {
+  font-size: 0.7rem;
+  padding: 0.25em 0.5em;
+}
+
+.btn-grupo {
+  transition: background-color 0.2s;
+}
+
+/* Garante que o contador apareça bem alinhado à direita */
+.btn-grupo .badge {
+  min-width: 20px;
+}
