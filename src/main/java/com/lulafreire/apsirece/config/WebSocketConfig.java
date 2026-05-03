@@ -28,7 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(@SuppressWarnings("null") StompEndpointRegistry registry) {
         // O endpoint que o cliente usará para se conectar ao WebSocket
-        registry.addEndpoint("/ws-portal")
+        registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*") // Permite conexões de diferentes origens se necessário
                 .withSockJS(); // Fallback para navegadores que não suportam WebSocket puro
     }

@@ -16,21 +16,20 @@
         style="overflow-y: auto; background-color: #f8f9fa !important"
       >
         <div th:fragment="area-mensagens" id="chat-content">
-          <!-- Estado: Visitante -->
+          <!-- O conteúdo aqui é substituído via Ajax pelo carregarHistorico -->
           <div
             th:unless="${estaLogado}"
             class="d-flex flex-column align-items-center justify-content-center h-100 text-muted text-center"
           >
             <i class="ph ph-chat-centered-dots fs-1 mb-3"></i>
             <p>
-              Você está visualizando o portal como visitante.<br />
-              Para interagir,
+              Você está visualizando o portal como visitante.<br />Para
+              interagir,
               <a th:href="@{/login}" class="fw-bold text-primary">faça login</a
               >.
             </p>
           </div>
 
-          <!-- Estado: Logado mas sem chat selecionado -->
           <div
             th:if="${estaLogado and tipoConversa == null}"
             class="d-flex flex-column align-items-center justify-content-center h-100 text-muted"
@@ -39,7 +38,7 @@
             <p>Selecione um grupo ou servidor para iniciar uma conversa.</p>
           </div>
 
-          <!-- Conteúdo do Chat Ativo -->
+          <!-- Fragmento carregado quando há conversa ativa -->
           <div th:if="${tipoConversa != null}" class="d-flex flex-column gap-3">
             <div class="text-center mb-3">
               <span
@@ -49,11 +48,9 @@
                   th:class="${tipoConversa == 'GRUPO' ? 'ph ph-users' : 'ph ph-user'}"
                 ></i>
                 <h5
-                  class="mb-0"
+                  class="mb-0 d-inline ms-2"
                   th:text="${tipoConversa == 'GRUPO' ? conversaAtiva.nome : (servidorDestino != null ? servidorDestino.nomeCompleto : destinatario.username)}"
-                >
-                  Nome da Conversa
-                </h5>
+                ></h5>
               </span>
             </div>
 
@@ -63,7 +60,7 @@
             >
               <div
                 th:class="${m.remetente.username == #authentication.name} ? 'bg-primary text-white p-2 rounded-3 shadow-sm' : 'bg-white border p-2 rounded-3 shadow-sm'"
-                style="max-width: 75%; position: relative"
+                style="max-width: 75%"
               >
                 <small
                   th:if="${m.remetente.username != #authentication.name}"
@@ -82,13 +79,6 @@
                 </div>
               </div>
             </div>
-
-            <div
-              th:if="${#lists.isEmpty(mensagens)}"
-              class="text-center text-muted my-5"
-            >
-              <p>Nenhuma mensagem ainda. Comece a conversa!</p>
-            </div>
           </div>
         </div>
       </div>
@@ -99,8 +89,8 @@
           id="messageForm"
           class="d-flex gap-2"
           onsubmit="
-            event.preventDefault();
             enviarMensagem();
+            return false;
           "
         >
           <input type="hidden" id="ativoId" value="" />
@@ -114,7 +104,7 @@
             disabled
           />
           <button
-            type="button"
+            type="submit"
             id="btnEnviar"
             class="btn btn-primary shadow-sm"
             disabled
@@ -128,17 +118,18 @@
 
   <div layout:fragment="aside-extra">
     <div class="p-2">
+      <!-- RESTAURADO: Seção de Grupos -->
       <h6 class="text-uppercase text-muted small fw-bold mb-3">Grupos</h6>
       <div class="list-group list-group-flush mb-4">
         <button
           th:each="grupo : ${grupos}"
-          class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center gap-2 btn-grupo"
+          class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center gap-2"
           th:data-id="${grupo.id}"
           onclick="selecionarChat('grupo', this.getAttribute('data-id'), this)"
         >
           <div
             th:class="'group-avatar ' + (${grupo.id % 4 == 0} ? 'bg-group-1' : (${grupo.id % 4 == 1} ? 'bg-group-2' : (${grupo.id % 4 == 2} ? 'bg-group-3' : 'bg-group-4')))"
-            th:text="${grupo.nome != null && !grupo.nome.empty ? #strings.substring(grupo.nome, 0, 1) : 'G'}"
+            th:text="${#strings.substring(grupo.nome, 0, 1)}"
           >
             G
           </div>
@@ -149,20 +140,19 @@
             ></span>
             <span class="text-muted extra-small" style="font-size: 0.7rem">
               <i class="ph ph-users me-1"></i>
-              <span
-                th:text="${grupo.quantidadeMembros + (grupo.quantidadeMembros == 1 ? ' membro' : ' membros')}"
-              ></span>
+              <span th:text="${grupo.quantidadeMembros} + ' membros'"></span>
             </span>
           </div>
         </button>
       </div>
 
+      <!-- RESTAURADO: Seção de Servidores -->
       <h6 class="text-uppercase text-muted small fw-bold mb-3">Servidores</h6>
       <div class="list-group list-group-flush">
         <button
           th:each="servidor : ${servidores}"
           th:if="${servidor.usuario != null}"
-          class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center btn-servidor"
+          class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center"
           th:data-id="${servidor.usuario.id}"
           onclick="
             selecionarChat('privado', this.getAttribute('data-id'), this)
@@ -173,7 +163,6 @@
             class="rounded-circle border me-2"
             style="width: 30px; height: 30px; object-fit: cover"
           />
-
           <div class="text-truncate text-start">
             <div
               class="fw-bold small text-dark"
@@ -189,74 +178,156 @@
       </div>
     </div>
 
-    <!-- SCRIPTS MANTIDOS -->
+    <script th:src="@{/js/stomp.min.js}"></script>
+    <script th:src="@{/js/sockjs.min.js}"></script>
+
     <script th:inline="javascript">
       const estaLogado = /*[[${estaLogado}]]*/ false;
+      const usernameLogado = /*[[${#authentication.name}]]*/ "";
+      let stompClient = null;
+      let subscricaoAtual = null;
+
+      // Inicialização da conexão ao carregar a página
+      if (estaLogado) {
+        if (typeof SockJS !== "undefined") {
+          // Utilizando a nomenclatura reduzida conforme sua opção
+          const socket = new SockJS("/ws");
+          stompClient = Stomp.over(socket);
+
+          stompClient.connect(
+            {},
+            function (frame) {
+              console.log("Conectado ao WebSocket: " + frame);
+
+              // Inscrição para mensagens privadas (Fila individual)
+              stompClient.subscribe("/user/queue/messages", function (msg) {
+                processarMensagemRecebida(JSON.parse(msg.body));
+              });
+            },
+            function (error) {
+              console.error("Erro na conexão STOMP:", error);
+            },
+          );
+        } else {
+          console.error(
+            "Erro: SockJS não encontrado. Verifique se o arquivo js/sockjs.min.js foi carregado.",
+          );
+        }
+      }
 
       function selecionarChat(tipo, id, elemento) {
-        if (!estaLogado) return alert("Faça login para interagir.");
+        // Bloqueio de segurança: evita erro de 'null' se o socket ainda estiver conectando
+        if (!stompClient || !stompClient.connected) {
+          console.warn("Conexão WebSocket ainda não estabelecida.");
+          return;
+        }
+
+        // Interface: Destaque do item selecionado
         document
           .querySelectorAll(".list-group-item")
-          .forEach((el) =>
-            el.classList.remove("active", "bg-primary", "text-white"),
-          );
+          .forEach((el) => el.classList.remove("bg-primary", "text-white"));
         elemento.classList.add("bg-primary", "text-white");
+
+        // Atualiza campos de controle escondidos
         document.getElementById("ativoId").value = id;
         document.getElementById("tipoAtivo").value = tipo;
+
+        // Ativa o campo de entrada
         const input = document.getElementById("messageInput");
         input.disabled = false;
         input.placeholder =
-          "Mensagem para " +
-          (tipo === "grupo" ? "o grupo..." : "o servidor...");
+          "Mensagem para " + (tipo === "grupo" ? "o grupo..." : "o usuário...");
         document.getElementById("btnEnviar").disabled = false;
         input.focus();
-        carregarHistorico(tipo, id);
-      }
 
-      function carregarHistorico(tipo, id) {
-        fetch(`/chat/historico/${tipo}/${id}`)
-          .then((response) => {
-            // Se a resposta não for OK (200), joga um erro para o bloco catch
-            if (!response.ok)
-              throw new Error("Erro na requisição: " + response.status);
-            return response.text();
-          })
-          .then((html) => {
-            const area = document.getElementById("messages-area");
-            area.innerHTML = html;
-            area.scrollTo({ top: area.scrollHeight, behavior: "smooth" });
-          })
-          .catch((error) => {
-            console.error("Erro ao carregar histórico:", error);
-          });
+        // Carrega as mensagens antigas via AJAX
+        carregarHistorico(tipo, id);
+
+        // Gerenciamento de Subscrição em Tempo Real para Grupos
+        if (tipo === "grupo") {
+          // Limpa a subscrição do grupo anterior para não receber mensagens duplicadas
+          if (subscricaoAtual) subscricaoAtual.unsubscribe();
+
+          // Inscreve no novo tópico (Padrão: /topic/grupo.{id})
+          subscricaoAtual = stompClient.subscribe(
+            "/topic/grupo." + id,
+            function (msg) {
+              const mensagemRecebida = JSON.parse(msg.body);
+              processarMensagemRecebida(mensagemRecebida);
+            },
+          );
+        }
       }
 
       function enviarMensagem() {
         const input = document.getElementById("messageInput");
-        const conteudo = input.value;
         const idDestino = document.getElementById("ativoId").value;
         const tipo = document.getElementById("tipoAtivo").value;
-        if (!conteudo.trim()) return;
 
-        const formData = new FormData();
-        formData.append("conteudo", conteudo);
-        if (tipo === "grupo") formData.append("grupoId", idDestino);
-        else formData.append("destinatarioId", idDestino);
+        if (input.value.trim() && stompClient && stompClient.connected) {
+          const msg = {
+            conteudo: input.value,
+            remetente: { username: usernameLogado },
+          };
 
-        fetch("/chat/enviar", {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-CSRF-TOKEN":
-              document.querySelector('meta[name="_csrf"]')?.content ||
-              document.querySelector('input[name="_csrf"]')?.value,
-          },
-        }).then((response) => {
-          if (response.ok) {
-            input.value = "";
-            carregarHistorico(tipo, idDestino);
+          if (tipo === "grupo") {
+            msg.grupo = { id: parseInt(idDestino) };
+            // CORREÇÃO: Adicionado o ID na URL para satisfazer o @DestinationVariable do Java
+            stompClient.send(
+              "/app/chat.grupo." + idDestino,
+              {},
+              JSON.stringify(msg),
+            );
+          } else {
+            msg.destinatario = { id: parseInt(idDestino) };
+            // Se o seu chat privado também usar @DestinationVariable, faça o mesmo aqui:
+            stompClient.send(
+              "/app/chat.privado." + idDestino,
+              {},
+              JSON.stringify(msg),
+            );
           }
-        });
+
+          input.value = "";
+        }
+      }
+
+      function processarMensagemRecebida(mensagem) {
+        const idAtivo = document.getElementById("ativoId").value;
+        const tipoAtivo = document.getElementById("tipoAtivo").value;
+
+        // Verifica se a mensagem pertence ao chat que estou lendo agora
+        const ehDesteChat =
+          (mensagem.grupo &&
+            mensagem.grupo.id == idAtivo &&
+            tipoAtivo === "grupo") ||
+          (!mensagem.grupo && tipoAtivo === "privado");
+
+        if (ehDesteChat) {
+          // Opção A: Rápida (Recomendada) - Apenas recarrega o fragmento
+          carregarHistorico(tipoAtivo, idAtivo);
+
+          // Opção B: Se a A falhar, force o scroll para baixo após 200ms
+          setTimeout(() => {
+            const container = document.getElementById("container-mensagens");
+            if (container) container.scrollTop = container.scrollHeight;
+          }, 200);
+        }
+      }
+
+      function carregarHistorico(tipo, id) {
+        fetch(`/chat/historico/${tipo}/${id}`)
+          .then((res) => res.text())
+          .then((html) => {
+            document.getElementById("messages-area").innerHTML = html;
+            scrollParaBaixo();
+          })
+          .catch((err) => console.error("Erro ao carregar histórico:", err));
+      }
+
+      function scrollParaBaixo() {
+        const area = document.getElementById("messages-area");
+        if (area) area.scrollTop = area.scrollHeight;
       }
     </script>
   </div>

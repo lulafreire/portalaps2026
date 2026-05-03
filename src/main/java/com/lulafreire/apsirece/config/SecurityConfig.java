@@ -20,7 +20,7 @@ public class SecurityConfig {
                                                 // 1. RECURSOS ESTÁTICOS: Devem ser os primeiros para o layout não
                                                 // quebrar
                                                 .requestMatchers("/css/**", "/chat/**", "/js/**", "/img/**",
-                                                                "/webjars/**",
+                                                                "/webjars/**", "/ws/**",
                                                                 "/favicon.ico")
                                                 .permitAll()
 

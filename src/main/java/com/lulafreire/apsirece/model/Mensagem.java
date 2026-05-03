@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "tb_mensagens")
 @Getter
@@ -20,8 +22,9 @@ public class Mensagem {
     private String conteudo;
 
     // Relacionamento com quem enviou
-    @ManyToOne
-    @JoinColumn(name = "remetente_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "remetente_id")
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "password", "authorities" })
     private Usuario remetente;
 
     // Se nulo, a mensagem é para um grupo
@@ -30,8 +33,9 @@ public class Mensagem {
     private Usuario destinatario;
 
     // Se nulo, a mensagem é privada (direta)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "grupo_id")
+    @JsonIgnoreProperties({ "membros", "hibernateLazyInitializer", "handler" })
     private Grupo grupo;
 
     private boolean lida = false;

@@ -20,18 +20,31 @@ function conectar() {
 }
 
 function enviarMensagem() {
-  const texto = document.getElementById("message-input").value;
-  if (texto && stompClient) {
+  const input = document.getElementById("message-input");
+  const texto = input.value;
+  const tipo = document.getElementById("tipo-conversa").value; // 'PRIVADO' ou 'GRUPO'
+
+  if (texto && stompClient && stompClient.connected) {
     const mensagem = {
       conteudo: texto,
       remetente: { email: emailLogado },
-      destinatario: { email: destinatarioAtual }, // VARCHAR conforme regra do projeto
       dataEnvio: new Date(),
     };
 
-    stompClient.send("/app/chat.privado", {}, JSON.stringify(mensagem)); // Rota do Controller
-    exibirMensagem(mensagem); // Mostra na própria tela
-    document.getElementById("message-input").value = "";
+    if (tipo === "PRIVADO") {
+      mensagem.destinatario = { email: destinatarioAtual };
+      stompClient.send("/app/chat.privado", {}, JSON.stringify(mensagem));
+    } else {
+      // Para grupos, o ID do grupo vai na URL do @MessageMapping
+      stompClient.send(
+        "/app/chat.grupo." + grupoAtivoId,
+        {},
+        JSON.stringify(mensagem),
+      );
+    }
+
+    exibirMensagem(mensagem);
+    input.value = "";
   }
 }
 

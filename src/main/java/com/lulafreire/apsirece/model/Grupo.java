@@ -5,6 +5,9 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@SuppressWarnings("unused")
 @Entity
 @Table(name = "tb_grupos")
 @Getter
