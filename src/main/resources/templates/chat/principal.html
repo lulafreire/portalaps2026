@@ -200,9 +200,12 @@
               console.log("Conectado ao WebSocket: " + frame);
 
               // Inscrição para mensagens privadas (Fila individual)
-              stompClient.subscribe("/user/queue/messages", function (msg) {
-                processarMensagemRecebida(JSON.parse(msg.body));
-              });
+              stompClient.subscribe(
+                "/user/queue/messages",
+                function (mensagem) {
+                  exibirMensagemNaTela(JSON.parse(mensagem.body));
+                },
+              );
             },
             function (error) {
               console.error("Erro na conexão STOMP:", error);
@@ -271,13 +274,14 @@
           };
 
           if (tipo === "grupo") {
-            msg.grupo = { id: parseInt(idDestino) };
-            // CORREÇÃO: Adicionado o ID na URL para satisfazer o @DestinationVariable do Java
-            stompClient.send(
-              "/app/chat.grupo." + idDestino,
-              {},
-              JSON.stringify(msg),
-            );
+            const idNumerico = parseInt(idDestino);
+            msg.grupo = { id: idNumerico };
+
+            // Use crases e ${} para garantir que o ID seja injetado na string
+            const destino = `/app/chat.grupo.${idNumerico}`;
+            console.log("Enviando para:", destino); // Isso vai aparecer no seu console para debug
+
+            stompClient.send(destino, {}, JSON.stringify(msg));
           } else {
             msg.destinatario = { id: parseInt(idDestino) };
             // Se o seu chat privado também usar @DestinationVariable, faça o mesmo aqui:
