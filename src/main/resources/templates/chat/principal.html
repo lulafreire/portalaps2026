@@ -200,12 +200,9 @@
               console.log("Conectado ao WebSocket: " + frame);
 
               // Inscrição para mensagens privadas (Fila individual)
-              stompClient.subscribe(
-                "/user/queue/messages",
-                function (mensagem) {
-                  exibirMensagemNaTela(JSON.parse(mensagem.body));
-                },
-              );
+              stompClient.subscribe("/user/queue/messages", function (msg) {
+                processarMensagemRecebida(JSON.parse(msg.body));
+              });
             },
             function (error) {
               console.error("Erro na conexão STOMP:", error);
@@ -219,44 +216,39 @@
       }
 
       function selecionarChat(tipo, id, elemento) {
-        // Bloqueio de segurança: evita erro de 'null' se o socket ainda estiver conectando
         if (!stompClient || !stompClient.connected) {
-          console.warn("Conexão WebSocket ainda não estabelecida.");
+          console.warn("WebSocket ainda não conectado.");
           return;
         }
 
-        // Interface: Destaque do item selecionado
+        // UI
         document
           .querySelectorAll(".list-group-item")
           .forEach((el) => el.classList.remove("bg-primary", "text-white"));
         elemento.classList.add("bg-primary", "text-white");
 
-        // Atualiza campos de controle escondidos
         document.getElementById("ativoId").value = id;
         document.getElementById("tipoAtivo").value = tipo;
 
-        // Ativa o campo de entrada
         const input = document.getElementById("messageInput");
         input.disabled = false;
         input.placeholder =
-          "Mensagem para " + (tipo === "grupo" ? "o grupo..." : "o usuário...");
+          tipo === "grupo" ? "Mensagem para o grupo..." : "Mensagem...";
         document.getElementById("btnEnviar").disabled = false;
         input.focus();
 
-        // Carrega as mensagens antigas via AJAX
+        // Carrega histórico via fetch (só uma vez ao selecionar)
         carregarHistorico(tipo, id);
 
-        // Gerenciamento de Subscrição em Tempo Real para Grupos
+        // ✅ Só faz subscribe se mudou de grupo
         if (tipo === "grupo") {
-          // Limpa a subscrição do grupo anterior para não receber mensagens duplicadas
           if (subscricaoAtual) subscricaoAtual.unsubscribe();
 
-          // Inscreve no novo tópico (Padrão: /topic/grupo.{id})
           subscricaoAtual = stompClient.subscribe(
             "/topic/grupo." + id,
             function (msg) {
-              const mensagemRecebida = JSON.parse(msg.body);
-              processarMensagemRecebida(mensagemRecebida);
+              const mensagem = JSON.parse(msg.body);
+              exibirMensagemNaTela(mensagem); // ✅ direto no DOM, sem chamar carregarHistorico
             },
           );
         }
@@ -300,7 +292,6 @@
         const idAtivo = document.getElementById("ativoId").value;
         const tipoAtivo = document.getElementById("tipoAtivo").value;
 
-        // Verifica se a mensagem pertence ao chat que estou lendo agora
         const ehDesteChat =
           (mensagem.grupo &&
             mensagem.grupo.id == idAtivo &&
@@ -308,22 +299,51 @@
           (!mensagem.grupo && tipoAtivo === "privado");
 
         if (ehDesteChat) {
-          // Opção A: Rápida (Recomendada) - Apenas recarrega o fragmento
-          carregarHistorico(tipoAtivo, idAtivo);
-
-          // Opção B: Se a A falhar, force o scroll para baixo após 200ms
-          setTimeout(() => {
-            const container = document.getElementById("container-mensagens");
-            if (container) container.scrollTop = container.scrollHeight;
-          }, 200);
+          exibirMensagemNaTela(mensagem); // ✅ nunca chamar carregarHistorico aqui
         }
+      }
+
+      function exibirMensagemNaTela(msg) {
+        const container = document.getElementById("chat-content");
+        if (!container) return;
+
+        // DTO usa remetenteUsername diretamente
+        const remetente =
+          msg.remetenteUsername || (msg.remetente && msg.remetente.username);
+        const euSouRemetente = remetente === usernameLogado;
+
+        const hora = msg.dataEnvio
+          ? new Date(msg.dataEnvio).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "";
+
+        const wrapper = document.createElement("div");
+        wrapper.className = euSouRemetente
+          ? "d-flex flex-column align-items-end"
+          : "d-flex flex-column align-items-start";
+
+        wrapper.innerHTML = `
+        <div class="${euSouRemetente ? "bg-primary text-white" : "bg-white border"} p-2 rounded-3 shadow-sm"
+             style="max-width: 75%">
+            ${!euSouRemetente ? `<small class="d-block fw-bold mb-1 text-primary" style="font-size:0.7rem">${remetente}</small>` : ""}
+            <span class="d-block">${msg.conteudo}</span>
+            <div class="text-end" style="font-size:0.65rem; opacity:0.8; margin-top:4px">
+                <span>${hora}</span>
+            </div>
+        </div>
+    `;
+
+        container.appendChild(wrapper);
+        scrollParaBaixo();
       }
 
       function carregarHistorico(tipo, id) {
         fetch(`/chat/historico/${tipo}/${id}`)
           .then((res) => res.text())
           .then((html) => {
-            document.getElementById("messages-area").innerHTML = html;
+            document.getElementById("chat-content").innerHTML = html; // ✅ chat-content, não messages-area
             scrollParaBaixo();
           })
           .catch((err) => console.error("Erro ao carregar histórico:", err));

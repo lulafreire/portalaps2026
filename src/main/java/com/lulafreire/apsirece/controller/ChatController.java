@@ -37,21 +37,24 @@ public class ChatController {
      * Recebe mensagens de grupo.
      * Corrigido com .{grupoId} para bater com o log de erro anterior.
      */
-    @SuppressWarnings("null")
     @MessageMapping("/chat.grupo.{grupoId}")
     public void processarMensagemGrupo(@DestinationVariable Long grupoId, @Payload Mensagem mensagem) {
         try {
-            // Forçamos o ID que veio na URL para garantir a associação correta
-            if (mensagem.getGrupo() == null) {
+            if (mensagem.getGrupo() == null)
                 mensagem.setGrupo(new Grupo());
-            }
             mensagem.getGrupo().setId(grupoId);
 
-            // Chamada ao service que deve conter @Transactional
             Mensagem salva = chatService.salvarMensagem(mensagem);
 
-            // O envio para o tópico deve usar o objeto 'salva' que já vem com ID do banco
-            messagingTemplate.convertAndSend("/topic/grupo." + grupoId, salva);
+            // ✅ Envia DTO em vez da entidade
+            MensagemDTO dto = new MensagemDTO();
+            dto.setId(salva.getId());
+            dto.setConteudo(salva.getConteudo());
+            dto.setDataEnvio(salva.getDataEnvio());
+            dto.setRemetenteUsername(salva.getRemetente().getUsername());
+            dto.setGrupoId(grupoId);
+
+            messagingTemplate.convertAndSend("/topic/grupo." + grupoId, dto);
 
         } catch (Exception e) {
             System.err.println("ERRO AO SALVAR MENSAGEM: " + e.getMessage());
@@ -67,23 +70,30 @@ public class ChatController {
     @MessageMapping("/chat.privado.{usuarioId}")
     public void processarMensagemPrivada(@DestinationVariable Long usuarioId, @Payload Mensagem mensagem) {
         try {
-            if (mensagem.getDestinatario() != null) {
-                mensagem.getDestinatario().setId(usuarioId);
-            }
+            // Busca as entidades completas para garantir que username não seja null
+            Usuario destinatario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new RuntimeException("Destinatário não encontrado"));
+
+            Usuario remetente = usuarioRepository.findByUsername(
+                    mensagem.getRemetente().getUsername())
+                    .orElseThrow(() -> new RuntimeException("Remetente não encontrado"));
+
+            mensagem.setDestinatario(destinatario);
+            mensagem.setRemetente(remetente);
 
             Mensagem salva = chatService.salvarMensagem(mensagem);
 
-            // Envia para o canal específico do destinatário
-            messagingTemplate.convertAndSendToUser(
-                    salva.getDestinatario().getUsername(),
-                    "/queue/messages",
-                    salva);
+            // ✅ Agora username não será null
+            MensagemDTO dto = new MensagemDTO();
+            dto.setId(salva.getId());
+            dto.setConteudo(salva.getConteudo());
+            dto.setDataEnvio(salva.getDataEnvio());
+            dto.setRemetenteUsername(remetente.getUsername());
+            dto.setDestinatarioId(usuarioId);
 
-            // Também envia para o remetente (para atualizar a própria tela)
-            messagingTemplate.convertAndSendToUser(
-                    salva.getRemetente().getUsername(),
-                    "/queue/messages",
-                    salva);
+            messagingTemplate.convertAndSendToUser(destinatario.getUsername(), "/queue/messages", dto);
+            messagingTemplate.convertAndSendToUser(remetente.getUsername(), "/queue/messages", dto);
+
         } catch (Exception e) {
             System.err.println("Erro no WebSocket Privado: " + e.getMessage());
             e.printStackTrace();
