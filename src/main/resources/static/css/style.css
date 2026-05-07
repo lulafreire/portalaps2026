@@ -6,7 +6,13 @@
   --inss-text: #333333;
   --inss-accent: #2a3d55;
   --inss-orange: #ebad39;
+  --inss-selected: #cdeff3;
   --font-main: "Open Sans", "Segoe UI", Tahoma, sans-serif;
+}
+
+.bg-selected {
+  background-color: var(--inss-selected) !important;
+  color: white !important;
 }
 
 /* Ajuste global para ícones Phosphor */

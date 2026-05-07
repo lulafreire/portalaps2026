@@ -9,11 +9,44 @@
       class="chat-area d-flex flex-column"
       style="height: calc(100vh - 200px)"
     >
+      <!-- Cabeçalho fixo da conversa ativa -->
+      <div
+        id="chat-header"
+        class="d-none rounded-top px-3 py-2 d-flex align-items-center gap-2 border-bottom"
+        style="background-color: #cdeff3; min-height: 56px"
+      >
+        <!-- Avatar com indicador de status -->
+        <div class="position-relative flex-shrink-0">
+          <img
+            id="chat-header-avatar"
+            src="/img/avatar_masculino.png"
+            class="rounded-circle border"
+            style="width: 36px; height: 36px; object-fit: cover"
+          />
+          <span
+            id="chat-header-status"
+            class="position-absolute bottom-0 end-0 rounded-circle border border-white d-none"
+            style="width: 11px; height: 11px"
+          >
+          </span>
+        </div>
+
+        <!-- Nome e status -->
+        <div class="flex-grow-1 text-truncate">
+          <div id="chat-header-nome" class="fw-bold small text-dark"></div>
+          <div
+            id="chat-header-subtitulo"
+            class="extra-small"
+            style="font-size: 0.7rem"
+          ></div>
+        </div>
+      </div>
+
       <!-- Área de Mensagens Dinâmica -->
       <div
         id="messages-area"
         class="vibrant-scroll border rounded bg-white p-3 mb-3 flex-grow-1"
-        style="overflow-y: auto; background-color: #f8f9fa !important"
+        style="overflow-y: auto; background-color: #ffffff !important"
       >
         <div th:fragment="area-mensagens" id="chat-content">
           <!-- O conteúdo aqui é substituído via Ajax pelo carregarHistorico -->
@@ -146,7 +179,6 @@
         </button>
       </div>
 
-      <!-- RESTAURADO: Seção de Servidores -->
       <h6 class="text-uppercase text-muted small fw-bold mb-3">Servidores</h6>
       <div class="list-group list-group-flush">
         <button
@@ -154,25 +186,42 @@
           th:if="${servidor.usuario != null}"
           class="list-group-item list-group-item-action border-0 px-2 py-2 rounded d-flex align-items-center"
           th:data-id="${servidor.usuario.id}"
+          th:data-username="${servidor.usuario.username}"
           onclick="
             selecionarChat('privado', this.getAttribute('data-id'), this)
           "
         >
-          <img
-            th:src="${servidor.usuario.avatarUrl != null} ? @{/img/{url}(url=${servidor.usuario.avatarUrl})} : @{/img/avatar_masculino.png}"
-            class="rounded-circle border me-2"
-            style="width: 30px; height: 30px; object-fit: cover"
-          />
-          <div class="text-truncate text-start">
+          <!-- Avatar com indicador de status sobreposto -->
+          <div class="position-relative me-2 flex-shrink-0">
+            <img
+              th:src="${servidor.usuario.avatarUrl != null} ? @{/img/{url}(url=${servidor.usuario.avatarUrl})} : @{/img/avatar_masculino.png}"
+              class="rounded-circle border"
+              style="width: 30px; height: 30px; object-fit: cover"
+            />
+            <span
+              class="status-indicator position-absolute bottom-0 end-0 rounded-circle border border-white"
+              style="width: 10px; height: 10px"
+              th:classappend="${servidor.usuario.online} ? 'bg-success' : 'bg-secondary'"
+              th:title="${servidor.usuario.online} ? 'Online' : 'Offline'"
+            ></span>
+          </div>
+
+          <!-- Nome e username -->
+          <div class="text-truncate text-start flex-grow-1">
             <div
               class="fw-bold small text-dark"
               th:text="${servidor.nomeCompleto}"
             ></div>
             <div
-              class="text-muted extra-small"
+              class="text-muted extra-small d-flex align-items-center gap-1"
               style="font-size: 0.7rem"
-              th:text="${servidor.usuario.username}"
-            ></div>
+            >
+              <span
+                th:text="${servidor.usuario.online} ? 'Online' : 'Offline'"
+                th:class="${servidor.usuario.online} ? 'text-success' : 'text-muted'"
+              ></span>
+              <span class="text-muted">· [[${servidor.usuario.username}]]</span>
+            </div>
           </div>
         </button>
       </div>
@@ -187,10 +236,53 @@
       let stompClient = null;
       let subscricaoAtual = null;
 
+      function atualizarStatusOnline(username, online) {
+        // Atualiza o botão na lista lateral (código já existente)
+        const btn = document.querySelector(`[data-username="${username}"]`);
+        if (btn) {
+          const indicador = btn.querySelector(".status-indicator");
+          if (indicador) {
+            indicador.classList.toggle("bg-success", online);
+            indicador.classList.toggle("bg-secondary", !online);
+            indicador.title = online ? "Online" : "Offline";
+          }
+          const textoStatus = btn.querySelector(
+            ".text-muted.extra-small span:first-child",
+          );
+          if (textoStatus) {
+            textoStatus.textContent = online ? "Online" : "Offline";
+            textoStatus.className = online ? "text-success" : "text-muted";
+          }
+        }
+
+        // ✅ Atualiza o cabeçalho se o chat ativo for com esse usuário
+        const tipoAtivo = document.getElementById("tipoAtivo").value;
+        const btnAtivo = document.querySelector(".list-group-item.bg-selected");
+        if (
+          tipoAtivo === "privado" &&
+          btnAtivo &&
+          btnAtivo.dataset.username === username
+        ) {
+          const headerStatus = document.getElementById("chat-header-status");
+          const headerSubtitulo = document.getElementById(
+            "chat-header-subtitulo",
+          );
+          if (headerStatus) {
+            headerStatus.classList.toggle("bg-success", online);
+            headerStatus.classList.toggle("bg-secondary", !online);
+          }
+          if (headerSubtitulo) {
+            headerSubtitulo.textContent = online ? "Online" : "Offline";
+            headerSubtitulo.className = online
+              ? "extra-small text-success fw-semibold"
+              : "extra-small text-muted";
+          }
+        }
+      }
+
       // Inicialização da conexão ao carregar a página
       if (estaLogado) {
         if (typeof SockJS !== "undefined") {
-          // Utilizando a nomenclatura reduzida conforme sua opção
           const socket = new SockJS("/ws");
           stompClient = Stomp.over(socket);
 
@@ -199,9 +291,15 @@
             function (frame) {
               console.log("Conectado ao WebSocket: " + frame);
 
-              // Inscrição para mensagens privadas (Fila individual)
+              // Mensagens privadas
               stompClient.subscribe("/user/queue/messages", function (msg) {
                 processarMensagemRecebida(JSON.parse(msg.body));
+              });
+
+              // ✅ Status online/offline
+              stompClient.subscribe("/topic/status", function (msg) {
+                const status = JSON.parse(msg.body);
+                atualizarStatusOnline(status.username, status.online);
               });
             },
             function (error) {
@@ -221,11 +319,10 @@
           return;
         }
 
-        // UI
         document
           .querySelectorAll(".list-group-item")
-          .forEach((el) => el.classList.remove("bg-primary", "text-white"));
-        elemento.classList.add("bg-primary", "text-white");
+          .forEach((el) => el.classList.remove("bg-selected", "text-white"));
+        elemento.classList.add("bg-selected", "text-white");
 
         document.getElementById("ativoId").value = id;
         document.getElementById("tipoAtivo").value = tipo;
@@ -237,21 +334,99 @@
         document.getElementById("btnEnviar").disabled = false;
         input.focus();
 
-        // Carrega histórico via fetch (só uma vez ao selecionar)
+        // ✅ Popula o cabeçalho fixo
+        atualizarCabecalho(tipo, elemento);
+
         carregarHistorico(tipo, id);
 
-        // ✅ Só faz subscribe se mudou de grupo
         if (tipo === "grupo") {
           if (subscricaoAtual) subscricaoAtual.unsubscribe();
-
           subscricaoAtual = stompClient.subscribe(
             "/topic/grupo." + id,
             function (msg) {
-              const mensagem = JSON.parse(msg.body);
-              exibirMensagemNaTela(mensagem); // ✅ direto no DOM, sem chamar carregarHistorico
+              exibirMensagemNaTela(JSON.parse(msg.body));
             },
           );
         }
+      }
+
+      function atualizarCabecalho(tipo, elemento) {
+        const header = document.getElementById("chat-header");
+        const headerAvatar = document.getElementById("chat-header-avatar");
+        const headerNome = document.getElementById("chat-header-nome");
+        const headerSubtitulo = document.getElementById(
+          "chat-header-subtitulo",
+        );
+        const headerStatus = document.getElementById("chat-header-status");
+
+        if (tipo === "grupo") {
+          // Dados do grupo vindos do próprio botão clicado
+          const avatarEl = elemento.querySelector(".group-avatar");
+          const nomeEl = elemento.querySelector(".fw-semibold");
+          const membrosEl = elemento.querySelector(
+            ".extra-small span:last-child",
+          );
+
+          // Grupo usa ícone de letra em vez de foto
+          headerAvatar.style.display = "none";
+          headerStatus.classList.add("d-none");
+
+          // Cria/reutiliza avatar de letra
+          let letraAvatar = document.getElementById("chat-header-letra");
+          if (!letraAvatar) {
+            letraAvatar = document.createElement("div");
+            letraAvatar.id = "chat-header-letra";
+            letraAvatar.className = avatarEl
+              ? avatarEl.className
+              : "group-avatar bg-group-1";
+            letraAvatar.style.cssText =
+              "width:36px;height:36px;font-size:1rem;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0";
+            headerAvatar.parentNode.insertBefore(letraAvatar, headerAvatar);
+          }
+          letraAvatar.className = avatarEl
+            ? avatarEl.className
+            : "group-avatar bg-group-1";
+          letraAvatar.style.cssText =
+            "width:36px;height:36px;font-size:1rem;display:flex;align-items:center;justify-content:center;border-radius:50%;flex-shrink:0";
+          letraAvatar.textContent = avatarEl
+            ? avatarEl.textContent.trim()
+            : "G";
+
+          headerNome.textContent = nomeEl ? nomeEl.textContent.trim() : "Grupo";
+          headerSubtitulo.textContent = membrosEl
+            ? membrosEl.textContent.trim()
+            : "";
+          headerSubtitulo.className = "extra-small text-muted";
+        } else {
+          // Dados do servidor vindos do botão clicado
+          const imgEl = elemento.querySelector("img");
+          const nomeEl = elemento.querySelector(".fw-bold.small");
+          const usernameEl = elemento.querySelector(
+            ".extra-small span:last-child",
+          );
+          const statusEl = elemento.querySelector(".status-indicator");
+          const online = statusEl && statusEl.classList.contains("bg-success");
+
+          // Remove avatar de letra se existir
+          const letraAvatar = document.getElementById("chat-header-letra");
+          if (letraAvatar) letraAvatar.remove();
+
+          headerAvatar.style.display = "block";
+          headerAvatar.src = imgEl ? imgEl.src : "/img/avatar_masculino.png";
+
+          headerStatus.classList.remove("d-none");
+          headerStatus.classList.toggle("bg-success", online);
+          headerStatus.classList.toggle("bg-secondary", !online);
+
+          headerNome.textContent = nomeEl ? nomeEl.textContent.trim() : "";
+          headerSubtitulo.textContent = online ? "Online" : "Offline";
+          headerSubtitulo.className = online
+            ? "extra-small text-success fw-semibold"
+            : "extra-small text-muted";
+        }
+
+        // Exibe o cabeçalho
+        header.classList.remove("d-none");
       }
 
       function enviarMensagem() {
@@ -299,7 +474,7 @@
           (!mensagem.grupo && tipoAtivo === "privado");
 
         if (ehDesteChat) {
-          exibirMensagemNaTela(mensagem); // ✅ nunca chamar carregarHistorico aqui
+          exibirMensagemNaTela(mensagem);
         }
       }
 

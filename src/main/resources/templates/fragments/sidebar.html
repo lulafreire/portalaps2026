@@ -53,6 +53,17 @@
       </a>
 
       <a
+        href="/tarefas"
+        class="nav-link"
+        data-bs-toggle="tooltip"
+        data-bs-placement="right"
+        title="TAREFAS"
+      >
+        <i class="ph-light ph-list-checks"></i>
+        <span class="item-title">TAREFAS</span>
+      </a>
+
+      <a
   th:href="@{/chat/mensagens}"
   class="nav-link"
   th:classappend="${currentPage == 'mensagens' ? 'active' : ''}"
@@ -63,7 +74,6 @@
   <i class="ph-light ph-chat-centered-text"></i>
   <span class="item-title">MENSAGENS</span>
 </a>
-
         <!-- Badge de Notificações Não Lidas -->
         <span
           th:if="${totalNaoLidas > 0}"
