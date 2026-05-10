@@ -38,7 +38,7 @@ body {
 }
 
 .content-body {
-  padding: 0 20px; /* Espaçamento interno lateral */
+  /*padding: 0 20px; /* Espaçamento interno lateral */
   width: 100%; /* Garante que não ultrapasse o wrapper pai */
   box-sizing: border-box; /* Inclui o padding no cálculo da largura */
 }

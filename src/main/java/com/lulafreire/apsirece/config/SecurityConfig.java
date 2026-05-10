@@ -19,7 +19,7 @@ public class SecurityConfig {
                                 .authorizeHttpRequests(auth -> auth
                                                 // 1. RECURSOS ESTÁTICOS: Devem ser os primeiros para o layout não
                                                 // quebrar
-                                                .requestMatchers("/css/**", "/chat/**", "/js/**", "/img/**",
+                                                .requestMatchers("/css/**", "/chat/**", "/js/**", "/fonts/**", "/img/**",
                                                                 "/webjars/**", "/ws/**",
                                                                 "/favicon.ico")
                                                 .permitAll()

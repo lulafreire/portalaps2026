@@ -113,6 +113,11 @@ public class IndexController {
         return "arquivos";
     }
 
+    @GetMapping("/tarefas")
+    public String tarefasPage(Model model) {
+        return "tarefas";
+    }
+
     @GetMapping("/opcoes")
     public String opcoesPage(Model model) {
         return "opcoes";

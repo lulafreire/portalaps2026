@@ -142,7 +142,7 @@
             class="btn btn-primary shadow-sm"
             disabled
           >
-            <i class="ph ph-paper-plane-right"></i>
+            <i class="ph-light ph-paper-plane-right"></i>
           </button>
         </form>
       </div>
@@ -282,33 +282,45 @@
 
       // Inicialização da conexão ao carregar a página
       if (estaLogado) {
-        if (typeof SockJS !== "undefined") {
+        function registrarSubscricoes() {
+          stompClient.debug = null;
+
+          stompClient.subscribe("/user/queue/messages", function (msg) {
+            processarMensagemRecebida(JSON.parse(msg.body));
+          });
+
+          stompClient.subscribe("/topic/status", function (msg) {
+            const status = JSON.parse(msg.body);
+            atualizarStatusOnline(status.username, status.online);
+          });
+
+          console.log("Subscrições da página de mensagens registradas.");
+        }
+
+        // Reutiliza conexão global se já estiver ativa
+        if (window._stompGlobal && window._stompGlobal.connected) {
+          stompClient = window._stompGlobal;
+          registrarSubscricoes();
+        } else if (window._stompGlobal) {
+          // Ainda conectando — aguarda e sobrescreve o onConnect
+          stompClient = window._stompGlobal;
+          const onConnectOriginal = stompClient.onconnect;
+          stompClient.onconnect = function (frame) {
+            if (onConnectOriginal) onConnectOriginal(frame);
+            registrarSubscricoes();
+          };
+        } else {
+          // Fallback: cria nova conexão se o global não existir por algum motivo
           const socket = new SockJS("/ws");
           stompClient = Stomp.over(socket);
-
           stompClient.connect(
             {},
-            function (frame) {
-              console.log("Conectado ao WebSocket: " + frame);
-
-              // Mensagens privadas
-              stompClient.subscribe("/user/queue/messages", function (msg) {
-                processarMensagemRecebida(JSON.parse(msg.body));
-              });
-
-              // ✅ Status online/offline
-              stompClient.subscribe("/topic/status", function (msg) {
-                const status = JSON.parse(msg.body);
-                atualizarStatusOnline(status.username, status.online);
-              });
+            function () {
+              registrarSubscricoes();
             },
             function (error) {
               console.error("Erro na conexão STOMP:", error);
             },
-          );
-        } else {
-          console.error(
-            "Erro: SockJS não encontrado. Verifique se o arquivo js/sockjs.min.js foi carregado.",
           );
         }
       }
