@@ -16,6 +16,33 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `links_home`
+--
+
+DROP TABLE IF EXISTS `links_home`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `links_home` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `titulo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `descricao` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `icone_classe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `categoria` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `links_home`
+--
+
+LOCK TABLES `links_home` WRITE;
+/*!40000 ALTER TABLE `links_home` DISABLE KEYS */;
+/*!40000 ALTER TABLE `links_home` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `tb_documentos`
 --
 
@@ -146,8 +173,10 @@ CREATE TABLE `tb_links` (
   `categoria` enum('SISTEMA','FORMULARIO','LINK_EXTERNO','MANUAL') COLLATE utf8mb4_unicode_ci NOT NULL,
   `contador_cliques` bigint DEFAULT '0',
   `data_cadastro` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `descricao` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `icone_classe` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +185,7 @@ CREATE TABLE `tb_links` (
 
 LOCK TABLES `tb_links` WRITE;
 /*!40000 ALTER TABLE `tb_links` DISABLE KEYS */;
-INSERT INTO `tb_links` VALUES (1,'Sistema de RH','http://rh.intraprev.gov.br','SISTEMA',10,'2026-04-20 23:56:17'),(2,'Formulário de Férias','http://portal.gov/ferias','FORMULARIO',5,'2026-04-20 23:56:17'),(3,'Manual do Servidor','http://portal.gov/manual.pdf','MANUAL',2,'2026-04-20 23:56:17');
+INSERT INTO `tb_links` VALUES (1,'SAT','http://10.48.124.205:8080/atendimento/','SISTEMA',10,'2026-05-10 17:23:27','Sistema de Atendimento','ph-light ph-users-three'),(2,'Sibe Mantenedor','https://sibe.inss.gov.br','SISTEMA',0,'2026-05-10 17:23:27','Manutenção de Benefícios','ph-light ph-cpu'),(3,'Gerid','https://gerid.inss.gov.br','SISTEMA',0,'2026-05-10 17:23:27','Gestão de Identidades','ph-light ph-fingerprint'),(4,'Plenus','http://10.x.x.x/plenus','SISTEMA',0,'2026-05-10 17:23:27','Consulta de Créditos e Históricos','ph-light ph-database'),(5,'Sólido','https://solido.inss.gov.br','SISTEMA',0,'2026-05-10 17:23:27','Sistema de Perícia Médica','ph-light ph-stethoscope'),(6,'CNIS','https://cnisnet.inss.gov.br','SISTEMA',0,'2026-05-10 17:23:27','Cadastro Nacional de Informações Sociais','ph-light ph-identification-card'),(7,'Autodeclaração Rural','docs/autodeclaracao-rural.pdf','FORMULARIO',5,'2026-05-10 17:23:27','Autodeclaração do Trabalhador Rural','ph-light ph-file-text'),(8,'Requerimento Pensão','docs/pensao-morte.pdf','FORMULARIO',0,'2026-05-10 17:23:27','Modelo de Requerimento de Pensão por Morte','ph-light ph-file-pdf'),(9,'Termo de Responsabilidade','docs/termo-resp.pdf','FORMULARIO',0,'2026-05-10 17:23:27','Termo para representantes legais','ph-light ph-signature'),(10,'SALWEB','https://sal.rfb.gov.br/home','LINK_EXTERNO',1,'2026-05-10 17:23:27','Calcular GPS em atraso','ph-light ph-money'),(11,'Portal Gov.br','https://www.gov.br','LINK_EXTERNO',0,'2026-05-10 17:23:27','Portal único do Governo Federal','ph-light ph-globe'),(12,'Manual Atendimento','manuais/atendimento.pdf','MANUAL',0,'2026-05-10 17:23:27','Guia de boas práticas de atendimento','ph-light ph-book-open');
 /*!40000 ALTER TABLE `tb_links` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -182,7 +211,7 @@ CREATE TABLE `tb_mensagens` (
   CONSTRAINT `tb_mensagens_ibfk_1` FOREIGN KEY (`remetente_id`) REFERENCES `tb_usuarios` (`id`),
   CONSTRAINT `tb_mensagens_ibfk_2` FOREIGN KEY (`destinatario_id`) REFERENCES `tb_usuarios` (`id`),
   CONSTRAINT `tb_mensagens_ibfk_3` FOREIGN KEY (`grupo_id`) REFERENCES `tb_grupos` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=66 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -191,7 +220,7 @@ CREATE TABLE `tb_mensagens` (
 
 LOCK TABLES `tb_mensagens` WRITE;
 /*!40000 ALTER TABLE `tb_mensagens` DISABLE KEYS */;
-INSERT INTO `tb_mensagens` VALUES (1,'Olá, joao.servidor',1,2,NULL,0,'2026-05-03 21:30:18'),(2,'Olá, admin',2,1,NULL,0,'2026-05-03 21:30:37'),(3,'Mensagem para o grupo Geral',1,NULL,1,0,'2026-05-03 21:30:49'),(4,'Aparece para os demais, não para quem enviou',1,NULL,1,0,'2026-05-03 21:31:26'),(5,'Voltando à conversa com joao.servidor',1,2,NULL,0,'2026-05-03 21:32:14'),(6,'Escutando',2,1,NULL,0,'2026-05-03 21:32:32'),(7,'João envia mensagem para o grupo Geral',2,NULL,1,0,'2026-05-03 21:33:46'),(8,'Mensagem de admin',1,NULL,1,0,'2026-05-03 21:34:09'),(9,'Oi, sou joao.servidor enviando mensagem no grupo Geral',2,NULL,1,0,'2026-05-03 21:45:12'),(10,'A mensagem não chegou em tempo real',1,NULL,1,0,'2026-05-03 21:45:23'),(11,'E agora?',2,NULL,1,0,'2026-05-03 21:45:32'),(12,'Nada...',1,NULL,1,0,'2026-05-03 21:45:37'),(13,'Tente mais uma vez',2,NULL,1,0,'2026-05-03 21:46:04'),(14,'Ainda não chegou',1,NULL,1,0,'2026-05-03 21:46:09'),(15,'A mensagem particular chega logo',1,2,NULL,0,'2026-05-03 21:46:23'),(16,'Sim, instataneamente',2,1,NULL,0,'2026-05-03 21:46:31'),(17,'Mensagem privada',1,2,NULL,0,'2026-05-03 22:01:10'),(18,'Chegou imediatamente',2,1,NULL,0,'2026-05-03 22:01:18'),(19,'Olá, admin',2,1,NULL,0,'2026-05-03 22:13:30'),(20,'Olá, joao.servidor',1,2,NULL,0,'2026-05-03 22:13:38'),(21,'Nova mensagem para admin',2,1,NULL,0,'2026-05-03 22:19:36'),(22,'Chegou a mensagem em joao.servidor',1,2,NULL,0,'2026-05-03 22:19:45'),(23,'Conferir se ainda está funcionando em tempo real',1,2,NULL,0,'2026-05-03 22:36:40'),(24,'Sim, chegou imediatamente a mensagem enviada pelo admin para joao.servidor',2,1,NULL,0,'2026-05-03 22:36:58'),(25,'Mensagem particular de admin para joao.servidor',1,2,NULL,0,'2026-05-03 22:52:20'),(26,'Resposta de joao.servidor para admin',2,1,NULL,0,'2026-05-03 22:52:32'),(27,'Olá, joao.servidor!',1,2,NULL,0,'2026-05-03 23:14:57'),(28,'Olá, admin!',2,1,NULL,0,'2026-05-03 23:15:03'),(29,'Boa noite, admin',2,1,NULL,0,'2026-05-03 23:49:07'),(30,'Boa noite!',1,2,NULL,0,'2026-05-03 23:49:17'),(31,'Mensagem joao.servidor para grupo Geral',2,NULL,1,0,'2026-05-03 23:49:33'),(32,'Mensagem de admin para grupo Geral',1,NULL,1,0,'2026-05-03 23:50:03'),(33,'As mensagens não estão aparecendo em tempo real',2,1,NULL,0,'2026-05-03 23:50:31'),(34,'Nova mensagem de admin para joao.servidor',1,2,NULL,0,'2026-05-03 23:53:43');
+INSERT INTO `tb_mensagens` VALUES (1,'Olá, joao.servidor',1,2,NULL,0,'2026-05-03 21:30:18'),(2,'Olá, admin',2,1,NULL,0,'2026-05-03 21:30:37'),(3,'Mensagem para o grupo Geral',1,NULL,1,0,'2026-05-03 21:30:49'),(4,'Aparece para os demais, não para quem enviou',1,NULL,1,0,'2026-05-03 21:31:26'),(5,'Voltando à conversa com joao.servidor',1,2,NULL,0,'2026-05-03 21:32:14'),(6,'Escutando',2,1,NULL,0,'2026-05-03 21:32:32'),(7,'João envia mensagem para o grupo Geral',2,NULL,1,0,'2026-05-03 21:33:46'),(8,'Mensagem de admin',1,NULL,1,0,'2026-05-03 21:34:09'),(9,'Oi, sou joao.servidor enviando mensagem no grupo Geral',2,NULL,1,0,'2026-05-03 21:45:12'),(10,'A mensagem não chegou em tempo real',1,NULL,1,0,'2026-05-03 21:45:23'),(11,'E agora?',2,NULL,1,0,'2026-05-03 21:45:32'),(12,'Nada...',1,NULL,1,0,'2026-05-03 21:45:37'),(13,'Tente mais uma vez',2,NULL,1,0,'2026-05-03 21:46:04'),(14,'Ainda não chegou',1,NULL,1,0,'2026-05-03 21:46:09'),(15,'A mensagem particular chega logo',1,2,NULL,0,'2026-05-03 21:46:23'),(16,'Sim, instataneamente',2,1,NULL,0,'2026-05-03 21:46:31'),(17,'Mensagem privada',1,2,NULL,0,'2026-05-03 22:01:10'),(18,'Chegou imediatamente',2,1,NULL,0,'2026-05-03 22:01:18'),(19,'Olá, admin',2,1,NULL,0,'2026-05-03 22:13:30'),(20,'Olá, joao.servidor',1,2,NULL,0,'2026-05-03 22:13:38'),(21,'Nova mensagem para admin',2,1,NULL,0,'2026-05-03 22:19:36'),(22,'Chegou a mensagem em joao.servidor',1,2,NULL,0,'2026-05-03 22:19:45'),(23,'Conferir se ainda está funcionando em tempo real',1,2,NULL,0,'2026-05-03 22:36:40'),(24,'Sim, chegou imediatamente a mensagem enviada pelo admin para joao.servidor',2,1,NULL,0,'2026-05-03 22:36:58'),(25,'Mensagem particular de admin para joao.servidor',1,2,NULL,0,'2026-05-03 22:52:20'),(26,'Resposta de joao.servidor para admin',2,1,NULL,0,'2026-05-03 22:52:32'),(27,'Olá, joao.servidor!',1,2,NULL,0,'2026-05-03 23:14:57'),(28,'Olá, admin!',2,1,NULL,0,'2026-05-03 23:15:03'),(29,'Boa noite, admin',2,1,NULL,0,'2026-05-03 23:49:07'),(30,'Boa noite!',1,2,NULL,0,'2026-05-03 23:49:17'),(31,'Mensagem joao.servidor para grupo Geral',2,NULL,1,0,'2026-05-03 23:49:33'),(32,'Mensagem de admin para grupo Geral',1,NULL,1,0,'2026-05-03 23:50:03'),(33,'As mensagens não estão aparecendo em tempo real',2,1,NULL,0,'2026-05-03 23:50:31'),(34,'Nova mensagem de admin para joao.servidor',1,2,NULL,0,'2026-05-03 23:53:43'),(35,'Mensagem de joao.servidor para o grupo Geral',2,NULL,1,0,'2026-05-05 00:32:13'),(36,'Mensagem de admin para grupo Geral',1,NULL,1,0,'2026-05-05 00:32:29'),(37,'Testando novamente',1,NULL,1,0,'2026-05-05 00:33:28'),(38,'Nova mensagem de Joao.Servidor para o grupo',2,NULL,1,0,'2026-05-05 00:37:47'),(39,'Nova mensagem de admin para grupo',1,NULL,1,0,'2026-05-05 00:38:03'),(40,'nova tentativa',1,NULL,1,0,'2026-05-05 00:38:53'),(41,'Mensagem particular',1,2,NULL,0,'2026-05-05 23:56:47'),(42,'mensagem particular para joao.servidor',1,2,NULL,0,'2026-05-06 00:00:04'),(43,'Mensagem pessoal',1,2,NULL,0,'2026-05-06 00:11:17'),(44,'Olá',2,1,NULL,0,'2026-05-06 00:12:10'),(45,'Mensagem em grupo',1,NULL,1,0,'2026-05-06 00:12:43'),(46,'joao.servidor também consegue enviar',2,NULL,1,0,'2026-05-06 00:12:57'),(47,'Outra mensagem para o grupo ',2,NULL,1,0,'2026-05-06 00:14:44'),(48,'Olá',2,1,NULL,0,'2026-05-07 02:10:00'),(49,'Olá, mundo!',1,2,NULL,0,'2026-05-07 02:10:22'),(50,'Esse é um teste de mensagem!',1,2,NULL,0,'2026-05-07 02:10:47'),(51,'123456789',1,2,NULL,0,'2026-05-07 02:10:51'),(52,'/',1,2,NULL,0,'2026-05-07 02:10:53'),(53,'Testando em tempo real',2,1,NULL,0,'2026-05-07 02:10:53'),(54,';.',1,2,NULL,0,'2026-05-07 02:10:58'),(55,'\\',1,2,NULL,0,'2026-05-07 02:11:02'),(56,'@',1,2,NULL,0,'2026-05-07 02:11:03'),(57,'!@#$%¨&*()-+',1,2,NULL,0,'2026-05-07 02:11:12'),(58,':)',2,1,NULL,0,'2026-05-07 02:11:13'),(59,':D',1,2,NULL,0,'2026-05-07 02:11:16'),(60,'Test3e',1,NULL,1,0,'2026-05-07 02:11:26'),(61,'Mensagem em grupo',2,NULL,1,0,'2026-05-07 02:11:26'),(62,'Olá João',1,NULL,1,0,'2026-05-07 02:11:29'),(63,'Como posso ajudar?',1,NULL,1,0,'2026-05-07 02:11:32'),(64,'Arquivo.teste',1,NULL,1,0,'2026-05-07 02:12:12'),(65,'Mensagem para joão dia 10/05/2026',1,2,NULL,0,'2026-05-10 16:19:19');
 /*!40000 ALTER TABLE `tb_mensagens` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -325,4 +354,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-04 18:19:18
+-- Dump completed on 2026-05-10 15:43:18
