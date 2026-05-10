@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -74,6 +75,10 @@ public class IndexController {
         model.addAttribute("grupos", grupos);
 
         // 2. Carregamento de dados para os fragmentos da Home
+        model.addAttribute("linksSistemas", linkService.listarPorCategoria(CategoriaLink.SISTEMA));
+        model.addAttribute("linksFormularios", linkService.listarPorCategoria(CategoriaLink.FORMULARIO));
+        model.addAttribute("linksExternos", linkService.listarPorCategoria(CategoriaLink.LINK_EXTERNO));
+        model.addAttribute("linksManuais", linkService.listarPorCategoria(CategoriaLink.MANUAL));
         model.addAttribute("linksSistemas", linkService.listarPorCategoria(CategoriaLink.SISTEMA));
         model.addAttribute("linksFormularios", linkService.listarPorCategoria(CategoriaLink.FORMULARIO));
         model.addAttribute("linksExternos", linkService.listarPorCategoria(CategoriaLink.LINK_EXTERNO));

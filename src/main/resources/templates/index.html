@@ -4,122 +4,192 @@
   layout:decorate="~{layout/main}"
   th:with="currentPage='home'"
 >
-  <div layout:fragment="content">
-    <ul
-      class="nav nav-pills mb-4 px-4 border-bottom pb-2 gap-2"
-      id="pills-tab"
-      role="tablist"
-    >
-      <li class="nav-item">
-        <button
-          class="nav-link active px-4"
-          data-bs-toggle="pill"
-          data-bs-target="#tab-sistemas"
-          type="button"
+  <div layout:fragment="content" class="container-fluid pt-3 px-3">
+    <div class="row g-4 align-items-start flex-nowrap">
+      <main class="col flex-grow-1">
+        <ul
+          class="nav nav-pills mb-4 border-bottom pb-2 gap-2"
+          id="pills-tab"
+          role="tablist"
         >
-          SISTEMAS
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link px-4"
-          data-bs-toggle="pill"
-          data-bs-target="#tab-formularios"
-          type="button"
-        >
-          FORMULÁRIOS
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link px-4"
-          data-bs-toggle="pill"
-          data-bs-target="#tab-externos"
-          type="button"
-        >
-          LINKS EXTERNOS
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link px-4"
-          data-bs-toggle="pill"
-          data-bs-target="#tab-manuais"
-          type="button"
-        >
-          MANUAIS
-        </button>
-      </li>
-    </ul>
-
-    <div class="tab-content px-4" id="pills-tabContent">
-      <div class="tab-pane fade show active" id="tab-sistemas" role="tabpanel">
-        <div class="row g-3">
-          <div th:each="link : ${linksSistemas}" class="col-md-4">
-            <a
-              th:href="${link.url}"
-              target="_blank"
-              class="btn btn-outline-secondary w-100 py-3 fw-bold shadow-sm"
-              th:text="${link.titulo}"
-              >Link</a
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active px-4"
+              id="btn-sistemas"
+              data-bs-toggle="pill"
+              data-bs-target="#tab-sistemas"
+              type="button"
+              role="tab"
             >
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="tab-formularios" role="tabpanel">
-        <div class="row g-3">
-          <div th:each="link : ${linksFormularios}" class="col-md-4">
-            <a
-              th:href="${link.url}"
-              target="_blank"
-              class="btn btn-outline-secondary w-100 py-3 fw-bold shadow-sm"
-              th:text="${link.titulo}"
-              >Link</a
+              SISTEMAS
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link px-4"
+              id="btn-formularios"
+              data-bs-toggle="pill"
+              data-bs-target="#tab-formularios"
+              type="button"
+              role="tab"
             >
-          </div>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="tab-externos" role="tabpanel">
-        <div class="row g-3">
-          <div th:each="link : ${linksExternos}" class="col-md-4">
-            <a
-              th:href="${link.url}"
-              target="_blank"
-              class="btn btn-outline-secondary w-100 py-3 fw-bold shadow-sm"
-              th:text="${link.titulo}"
-              >Link</a
+              FORMULÁRIOS
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link px-4"
+              id="btn-externos"
+              data-bs-toggle="pill"
+              data-bs-target="#tab-externos"
+              type="button"
+              role="tab"
             >
-          </div>
-          <p
-            th:if="${#lists.isEmpty(linksExternos)}"
-            class="text-muted text-center py-3"
+              LINKS EXTERNOS
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link px-4"
+              id="btn-manuais"
+              data-bs-toggle="pill"
+              data-bs-target="#tab-manuais"
+              type="button"
+              role="tab"
+            >
+              MANUAIS
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content w-100" id="pills-tabContent">
+          <div
+            class="tab-pane fade show active"
+            id="tab-sistemas"
+            role="tabpanel"
           >
-            Nenhum link externo cadastrado.
-          </p>
-        </div>
-      </div>
-
-      <div class="tab-pane fade" id="tab-manuais" role="tabpanel">
-        <div class="row g-3">
-          <div th:each="link : ${linksManuais}" class="col-md-4">
-            <a
-              th:href="${link.url}"
-              target="_blank"
-              class="btn btn-outline-secondary w-100 py-3 fw-bold shadow-sm"
-              th:text="${link.titulo}"
-              >Link</a
+            <div
+              class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-2 px-1"
             >
+              <div class="col" th:each="link : ${linksSistemas}">
+                <a
+                  th:href="${link.url}"
+                  class="card-link-custom"
+                  th:title="${link.descricao}"
+                  target="_blank"
+                >
+                  <div class="card h-100 shadow-sm border-0 text-center py-3">
+                    <i
+                      th:class="${link.iconeClasse} + ' display-5 mb-2 text-primary'"
+                    ></i>
+                    <span
+                      class="fw-bold text-uppercase px-2"
+                      style="font-size: 0.7rem; line-height: 1.2"
+                      th:text="${link.titulo}"
+                    ></span>
+                  </div>
+                </a>
+              </div>
+            </div>
           </div>
-          <p
-            th:if="${#lists.isEmpty(linksManuais)}"
-            class="text-muted text-center py-3"
-          >
-            Nenhum manual cadastrado.
-          </p>
+
+          <div class="tab-pane fade" id="tab-formularios" role="tabpanel">
+            <div
+              class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-2 px-1"
+            >
+              <div class="col" th:each="link : ${linksFormularios}">
+                <a
+                  th:href="${link.url}"
+                  class="card-link-custom"
+                  th:title="${link.descricao}"
+                  target="_blank"
+                >
+                  <div class="card h-100 shadow-sm border-0 text-center py-3">
+                    <i
+                      th:class="${link.iconeClasse} + ' display-5 mb-2 text-primary'"
+                    ></i>
+                    <span
+                      class="fw-bold text-uppercase px-2"
+                      style="font-size: 0.7rem; line-height: 1.2"
+                      th:text="${link.titulo}"
+                    ></span>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <p
+              th:if="${#lists.isEmpty(linksFormularios)}"
+              class="text-muted text-center py-3"
+            >
+              Nenhum formulário cadastrado.
+            </p>
+          </div>
+
+          <div class="tab-pane fade" id="tab-externos" role="tabpanel">
+            <div
+              class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-2 px-1"
+            >
+              <div class="col" th:each="link : ${linksExternos}">
+                <a
+                  th:href="${link.url}"
+                  class="card-link-custom"
+                  th:title="${link.descricao}"
+                  target="_blank"
+                >
+                  <div class="card h-100 shadow-sm border-0 text-center py-3">
+                    <i
+                      th:class="${link.iconeClasse} + ' display-5 mb-2 text-primary'"
+                    ></i>
+                    <span
+                      class="fw-bold text-uppercase px-2"
+                      style="font-size: 0.7rem; line-height: 1.2"
+                      th:text="${link.titulo}"
+                    ></span>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <p
+              th:if="${#lists.isEmpty(linksExternos)}"
+              class="text-muted text-center py-3"
+            >
+              Nenhum link externo cadastrado.
+            </p>
+          </div>
+
+          <div class="tab-pane fade" id="tab-manuais" role="tabpanel">
+            <div
+              class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-2 px-1"
+            >
+              <div class="col" th:each="link : ${linksManuais}">
+                <a
+                  th:href="${link.url}"
+                  class="card-link-custom"
+                  th:title="${link.descricao}"
+                  target="_blank"
+                >
+                  <div class="card h-100 shadow-sm border-0 text-center py-3">
+                    <i
+                      th:class="${link.iconeClasse} + ' display-5 mb-2 text-primary'"
+                    ></i>
+                    <span
+                      class="fw-bold text-uppercase px-2"
+                      style="font-size: 0.7rem; line-height: 1.2"
+                      th:text="${link.titulo}"
+                    ></span>
+                  </div>
+                </a>
+              </div>
+            </div>
+            <p
+              th:if="${#lists.isEmpty(linksManuais)}"
+              class="text-muted text-center py-3"
+            >
+              Nenhum manual cadastrado.
+            </p>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   </div>
 </html>

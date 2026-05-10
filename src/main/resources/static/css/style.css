@@ -37,10 +37,24 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.navbar-top {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  margin-left: 280px;
+}
+
 .content-body {
-  /*padding: 0 20px; /* Espaçamento interno lateral */
-  width: 100%; /* Garante que não ultrapasse o wrapper pai */
-  box-sizing: border-box; /* Inclui o padding no cálculo da largura */
+  flex-grow: 1;
+  width: 100%;
+  transition: all 0.3s ease;
+  margin-left: 260px;
 }
 
 button,
@@ -57,7 +71,8 @@ textarea {
 
 /* Barra Lateral (Sidebar) */
 .sidebar {
-  width: 280px;
+  position: fixed; /* Fixa a sidebar para que ela não role com o conteúdo */
+  width: 260px;
   height: 100vh;
   background-color: var(--inss-dark);
   color: white;
@@ -66,6 +81,7 @@ textarea {
   flex-shrink: 0;
   transition: width 0.3s ease;
   z-index: 1000;
+  overflow-y: auto;
 }
 
 /* Estado Retraído */
@@ -78,6 +94,10 @@ textarea {
 .sidebar.collapsed .nav-link span,
 .sidebar.collapsed .fw-bold {
   display: none;
+}
+
+.sidebar.collapsed ~ .content-body {
+  margin-left: 80px;
 }
 
 .sidebar-header {
@@ -355,4 +375,49 @@ textarea {
 /* Garante que o contador apareça bem alinhado à direita */
 .btn-grupo .badge {
   min-width: 20px;
+}
+
+/* CARDS PARA EXIBIÇÃO DOS LINKS */
+
+.card-link-custom {
+  text-decoration: none !important;
+  display: block;
+  height: 100%;
+}
+
+.card-link-custom .card {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #eee !important;
+}
+
+/* Efeito de destaque no ícone ativo/hover */
+.card-link-custom:hover .card {
+  border-color: #0d6efd !important;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-5px);
+}
+
+.card-link-custom i {
+  color: #3d8bfd; /* Azul suave para os ícones */
+  font-size: 2.5rem; /* Aumenta o ícone para destaque */
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.card-link-custom:hover i {
+  transform: scale(1.1);
+}
+
+.card-link-custom span {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 5px;
 }
